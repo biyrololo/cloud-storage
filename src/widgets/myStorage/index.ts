@@ -1,0 +1,1 @@
+export { MyStorage } from "./myStorage";

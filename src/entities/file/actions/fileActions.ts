@@ -8,23 +8,10 @@ import { cookies } from "next/headers";
 import path from 'path';
 import { FileTree } from "@/shared/lib/fileTree";
 import archiver from 'archiver';
-
-const FILES_PATH = path.join(process.cwd(), 'storage/files');
+import s3Client from "@/shared/lib/s3/s3-config";
+import { PutObjectCommandInput, GetObjectCommandInput, DeleteObjectCommandInput } from "@aws-sdk/client-s3";
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 const METADATA_PATH = path.join(process.cwd(), 'storage/metadata');
-
-async function ensureDirectoriesExist() {
-    try {
-        await fs.access(FILES_PATH);
-    } catch {
-        await fs.mkdir(FILES_PATH, { recursive: true });
-    }
-
-    try {
-        await fs.access(METADATA_PATH);
-    } catch {
-        await fs.mkdir(METADATA_PATH, { recursive: true });
-    }
-}
 
 async function addRootMetadata(metadataId: string, userId: number){
     const rootPath = path.join(METADATA_PATH, userId.toString());
@@ -58,6 +45,27 @@ async function addRootMetadata(metadataId: string, userId: number){
     }   
 }
 
+async function deleteFromRootMetadata(metadataId: string){
+    const metadata = await getMetadata(metadataId);
+    if('error' in metadata){
+        return metadata;
+    }
+    const rootMetadata = await getRootMetadata(metadata.ownerId);
+    if('error' in rootMetadata){
+        return rootMetadata;
+    }
+    if(rootMetadata.type === 'folder'){
+        rootMetadata.children = rootMetadata.children.filter(id => id !== metadataId);
+        const rootPath = path.join(METADATA_PATH, metadata.ownerId.toString());
+        const rootFilePath = path.join(rootPath, 'root.json');
+        await fs.writeFile(rootFilePath, JSON.stringify(rootMetadata));
+    } else {
+        return {
+            error: 'Родительская папка не найдена'
+        };
+    }
+}
+
 async function getRootMetadata(userId: number){
     const rootPath = path.join(METADATA_PATH, userId.toString());
     const rootFilePath = path.join(rootPath, 'root.json');
@@ -89,17 +97,41 @@ async function getRootMetadata(userId: number){
 }
 
 async function uploadFileOnDisk(file: File){
-    await ensureDirectoriesExist();
+    try{
+        const fileId = uuidv4();
+
+        // Преобразуем File в Buffer
+        const buffer = Buffer.from(await file.arrayBuffer());
+
+        const params: PutObjectCommandInput = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: fileId,
+            Body: buffer,
+            ContentLength: buffer.length
+        }
+
+        const command = new PutObjectCommand(params);
+        await s3Client.send(command);
+
+        return fileId;
+    } catch (error) {
+        console.error(error);
+        return {
+            error: 'Произошла ошибка при загрузке файла'
+        };
+    }
+
+    // await ensureDirectoriesExist();
     
-    const fileId = uuidv4();
-    const filePath = path.join(FILES_PATH, fileId);
+    // const fileId = uuidv4();
+    // const filePath = path.join(FILES_PATH, fileId);
 
-    const buffer = await file.arrayBuffer();
-    const data = Buffer.from(buffer);
+    // const buffer = await file.arrayBuffer();
+    // const data = Buffer.from(buffer);
 
-    await fs.writeFile(filePath, data);
+    // await fs.writeFile(filePath, data);
 
-    return fileId;
+    // return fileId;
 }
 
 async function uploadFileAndCreateMetadata(
@@ -110,6 +142,11 @@ async function uploadFileAndCreateMetadata(
     ownerId: number
 ){
     const fileId = await uploadFileOnDisk(file);
+
+    if(typeof fileId === 'object'){
+        console.error(fileId);
+        throw new Error('Произошла ошибка при загрузке файла', {cause: fileId});
+    }
 
     const metadata: FileMetadata = {
         id: uuidv4(),
@@ -135,6 +172,21 @@ async function addChildToMetadata(parentId: string, childId: string){
     }
     if(parentMetadata.type === 'folder'){
         parentMetadata.children.push(childId);
+        await fs.writeFile(`${METADATA_PATH}/${parentMetadata.id}.json`, JSON.stringify(parentMetadata));
+    } else {
+        return {
+            error: 'Родительская папка не найдена'
+        };
+    }
+}
+
+async function deleteChildFromMetadata(parentId: string, childId: string){
+    const parentMetadata = await getMetadata(parentId);
+    if('error' in parentMetadata){
+        return parentMetadata;
+    }
+    if(parentMetadata.type === 'folder'){
+        parentMetadata.children = parentMetadata.children.filter(id => id !== childId);
         await fs.writeFile(`${METADATA_PATH}/${parentMetadata.id}.json`, JSON.stringify(parentMetadata));
     } else {
         return {
@@ -190,6 +242,78 @@ export async function uploadFile(params: UploadFileParams){
     }
 }
 
+async function deleteFile(metadata: FileMetadata){
+    if(metadata.type === 'file'){
+        // delete file from s3
+        const params: DeleteObjectCommandInput = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: metadata.fileId
+        }
+
+        await s3Client.send(new DeleteObjectCommand(params));
+
+        if(metadata.parentId && metadata.parentId !== 'root'){
+            await deleteChildFromMetadata(metadata.parentId, metadata.id);
+        } else {
+            await deleteFromRootMetadata(metadata.id);
+        }
+        await fs.unlink(`${METADATA_PATH}/${metadata.id}.json`);
+    } else {
+        await recursiveDeleteFolder(metadata);
+    }
+
+}
+
+async function recursiveDeleteFolder(metadata: FileMetadata){
+    if(metadata.type === 'file'){
+        await deleteFile(metadata);
+    } else {
+        for(const child of metadata.children){
+            const childMetadata = await getMetadata(child);
+            if('error' in childMetadata){
+                continue;
+            }
+            await recursiveDeleteFolder(childMetadata);
+        }
+        await deleteFromRootMetadata(metadata.id);
+        await fs.unlink(`${METADATA_PATH}/${metadata.id}.json`);
+    }
+}
+
+export async function deleteFileAction(metadataId: string){
+    const metadata = await getMetadata(metadataId);
+
+    if('error' in metadata){
+        return metadata;
+    }
+
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token');
+
+    if(!token){
+        if(metadata.accessUsersWrite.length !== 0){
+            return {
+                error: 'Вы не авторизованы'
+            };
+        }
+    } else {
+        const decodedToken = jwtService.verifyToken(token.value);
+
+        if(!decodedToken){
+            return {
+                error: 'Вы не авторизованы'
+            };
+        }
+
+        if(!metadata.accessUsersWrite.includes(decodedToken.id)){
+            return {
+                error: 'У вас нет доступа к этому файлу'
+            };
+        }
+    }
+
+    await deleteFile(metadata);
+}
 export type CreateFolderParams = {
     name: string;
     parentId: string | null;
@@ -280,17 +404,36 @@ export async function getMetadata(metadataId: string): Promise<FileMetadata | {e
 }
 
 async function getFile(fileId: string){
-    const filePath = `${FILES_PATH}/${fileId}`;
+    try{
+        const params: GetObjectCommandInput = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: fileId
+        }
 
-    const file = await fs.readFile(filePath);
-    
-    if(!file){
+        const command = new GetObjectCommand(params);
+        const response = await s3Client.send(command);
+
+        if(response.Body){
+            return response.Body;
+        }
+
         return {
             error: 'Файл не найден'
         };
+    } catch (error) {
+        console.error(error);
     }
+    // const filePath = `${FILES_PATH}/${fileId}`;
 
-    return file;
+    // const file = await fs.readFile(filePath);
+    
+    // if(!file){
+    //     return {
+    //         error: 'Файл не найден'
+    //     };
+    // }
+
+    // return file;
 }
 
 export async function addAccessToFile(metadataId: string, accessUsers: number[], type: 'read' | 'write'){
@@ -416,23 +559,35 @@ export async function downloadFiles(tree: FileTree[]){
 
 }
 
-async function getFileChildren(tree: FileTree, curPath: string, addFile: (file: Buffer<ArrayBufferLike>, path: string) => void){
+async function getFileChildren(tree: FileTree, curPath: string, addFile: (file: Buffer, path: string) => void){
     if(tree.type === 'file'){
         const file = await getFile(tree.fileId);
-        if('error' in file){
+        if(!file || 'error' in file){
             return;
         }
-        addFile(file, path.join(curPath, tree.name));
+        const chunks: Uint8Array[] = [];
+        const stream = file as unknown as AsyncIterable<Uint8Array>;
+        for await (const chunk of stream) {
+            chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+        addFile(buffer, path.join(curPath, tree.name));
         return;
     }
     for(const node of tree.children){
         const filePath = path.join(curPath, tree.name);
         if(node.type === 'file'){
             const file = await getFile(node.fileId);
-            if('error' in file){
+            if(!file || 'error' in file){
                 continue;
             }
-            addFile(file, path.join(filePath, node.name));
+            const chunks: Uint8Array[] = [];
+            const stream = file as unknown as AsyncIterable<Uint8Array>;
+            for await (const chunk of stream) {
+                chunks.push(chunk);
+            }
+            const buffer = Buffer.concat(chunks);
+            addFile(buffer, path.join(filePath, node.name));
         } else {
             await getFileChildren(node, filePath, addFile);
         }

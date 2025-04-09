@@ -9,11 +9,18 @@ import LinkIcon from '@mui/icons-material/Link';
 
 export function UserFile({file, selected, onSelect}: {file: FileTree, selected: boolean, onSelect: (file: FileTree) => void}){
     const router = useRouter();
-    const handleClick = () => {
-        if(file.type === 'folder'){
-            router.push(`/storage?d=${file.id}`);
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        switch(e.detail){
+            case 1:
+                onSelect(file);
+                break;
+            case 2:
+                if(file.type === 'folder'){
+                    router.push(`/storage?d=${file.id}`);
+                }
+                break;
         }
-    }
+    }   
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(`${window.location.origin}/storage?s=${file.id}&d=${file.id}`);
@@ -46,12 +53,7 @@ export function UserFile({file, selected, onSelect}: {file: FileTree, selected: 
             <ListItemButton dense onClick={handleClick}
                 selected={selected}
             >
-                <ListItemIcon
-                    onClick={e => {
-                        e.stopPropagation();
-                        onSelect(file);
-                    }}
-                >
+                <ListItemIcon>
                     <UserFileIcon type={file.type} name={file.name} />
                 </ListItemIcon>
                 <ListItemText primary={file.name} />

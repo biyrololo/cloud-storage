@@ -2,8 +2,9 @@ import { useTypedSelector, useTypedDispatch } from "@/shared/lib/store";
 import { Box, FormControlLabel, Checkbox, Tooltip, IconButton } from "@mui/material";
 import { fileActions } from "@/entities/file";
 import { Download } from "@mui/icons-material";
-import { downloadFiles, makeAccessToFilePublic } from "@/entities/file";
+import { downloadFiles, makeAccessToFilePublic, deleteFileAction } from "@/entities/file";
 import ShareIcon from '@mui/icons-material/Share';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export function StorageActions(){
     const selectedFiles = useTypedSelector(state => state.file.selectedFiles);
@@ -56,6 +57,18 @@ export function StorageActions(){
         }
     }
 
+    const handleDelete = async () => {
+        if(selectedFiles.length === 0 || !currentDir){
+            return;
+        }
+        for(const file of selectedFiles){
+            await deleteFileAction(file);
+        }
+        console.log('deleted');
+    }
+
+    const isActionsDisabled = selectedFiles.length === 0 || !currentDir;
+
     return (
         <Box display="flex" alignItems="center" gap={1}>
             <FormControlLabel
@@ -69,13 +82,18 @@ export function StorageActions(){
                 label={`Selected ${selectedFiles.length} of ${currentFiles.length}`}
             />
             <Tooltip title="Download">
-                <IconButton onClick={handleDownload}>
+                <IconButton onClick={handleDownload} disabled={isActionsDisabled}>
                     <Download />
                 </IconButton>
             </Tooltip>
             <Tooltip title="Make public">
-                <IconButton onClick={handleShare}>
+                <IconButton onClick={handleShare} disabled={isActionsDisabled}>
                     <ShareIcon />
+                </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete">
+                <IconButton onClick={handleDelete} disabled={isActionsDisabled}>
+                    <DeleteIcon />
                 </IconButton>
             </Tooltip>
         </Box>

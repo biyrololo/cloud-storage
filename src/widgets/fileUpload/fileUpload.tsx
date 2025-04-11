@@ -11,31 +11,34 @@ export function FileUpload({onClose}: {onClose: () => void}){
     const [pending, setPending] = useState(false);
     const currentDir = useTypedSelector(state => state.file.currentDir);
     const dispatch = useTypedDispatch();
-    const handleChange = async (file: File) => {
+    const handleChange = async (files: File[]) => {
         if(!currentDir){
             return;
         }
-        try {
-            setPending(true);
-            const response = await uploadFile({
-                file,
-                parentId: currentDir.id
-            });
-            console.log(response);
+        for(const file of files){
+            try {
+                setPending(true);
+                const response = await uploadFile({
+                    file,
+                    parentId: currentDir.id
+                });
+                console.log(response);
 
-            if('error' in response){
-                console.error(response.error);
-            } else {
-                dispatch(fileActions.addInTree({
-                    ...response,
-                    children: []
-                }));
-                onClose();
+                if('error' in response){
+                    console.error(response.error);
+                } else {
+                    dispatch(fileActions.addInTree({
+                        ...response,
+                        children: []
+                    }));
+                    dispatch(fileActions.updateCurrentDir());
+                    onClose();
+                }
+                } catch (error) {
+                console.error(error);
+            } finally {
+                setPending(false);
             }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setPending(false);
         }
     }
 
@@ -43,7 +46,8 @@ export function FileUpload({onClose}: {onClose: () => void}){
         <FileUploader
             handleChange={handleChange}
             name="file"
-            disabled={pending}  
+            disabled={pending} 
+            multiple
         />
     )
 }

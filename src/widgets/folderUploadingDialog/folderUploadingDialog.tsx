@@ -39,6 +39,7 @@ export function FolderUploadingDialog({open, onClose}: FolderUploadingDialogProp
             ...folder,
             children: []
         }));
+        dispatch(fileActions.updateCurrentDir());
         onClose();
     }
     

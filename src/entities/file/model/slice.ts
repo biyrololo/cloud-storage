@@ -1,4 +1,4 @@
-import { FileTree } from "@/shared/lib/fileTree";
+import { FileTree, findInTree, PathElement } from "@/shared/lib/fileTree";
 import { createSlice } from "@reduxjs/toolkit";
 
 interface FileState {
@@ -7,7 +7,7 @@ interface FileState {
     error: string | null;
     selectedFiles: string[];    
     currentDir: FileTree | null;
-    currentPath: {id: string, name: string}[];
+    currentPath: PathElement[];
 }
 
 const initialState: FileState = {
@@ -43,6 +43,43 @@ function updateTree(tree: FileTree, parentId: string, newFile: FileTree): FileTr
     return tree;
 }
 
+function editTree(tree: FileTree, parentId: string, newFile: FileTree): FileTree {
+    if (tree.id === parentId) {
+        if (tree.type === 'folder') {
+            tree.children = tree.children.map(child => {
+                if(child.id === newFile.id) {
+                    return newFile;
+                }
+                return child;
+            })
+        }
+        return tree;
+    }
+
+    if (tree.type === 'folder') {
+        tree.children = tree.children.map(child => editTree(child, parentId, newFile));
+        return tree;
+        // return {
+        //     ...tree,
+        //     children: tree.children.map(child => updateTree(child, parentId, newFile))
+        // };
+    }
+    return tree;
+}
+function deleteFromTree(tree: FileTree, parentId: string, id: string): FileTree {
+    if (tree.id === parentId) {
+        if(tree.type === 'folder') {
+            tree.children = tree.children.filter(child => child.id !== id);
+        }
+        return tree;
+    }
+    if(tree.type === 'folder') {
+        tree.children = tree.children.map(child => deleteFromTree(child, parentId, id));
+        return tree;
+    }
+    return tree;
+}
+
 export const fileSlice = createSlice({
     name: 'file',
     initialState,
@@ -59,11 +96,25 @@ export const fileSlice = createSlice({
                 return;
             }
             state.tree = updateTree(state.tree, action.payload.parentId, action.payload);
-            
-            // Если файл добавляется в текущую директорию, обновляем currentDir
-            if (state.currentDir && state.currentDir.id === action.payload.parentId) {
-                if (state.currentDir.type === 'folder') {
-                    state.currentDir.children.push(action.payload);
+        },
+        editInTree: (state, action) => {
+            if (!state.tree) {
+                return;
+            }
+            state.tree = editTree(state.tree, action.payload.parentId, action.payload);
+        },
+        deleteFromTree: (state, action) => {
+            if (!state.tree) {
+                return;
+            }
+            state.tree = deleteFromTree(state.tree, action.payload.parentId, action.payload.id);
+        },
+        updateCurrentDir: (state) => {
+            if(state.currentDir && state.tree) {
+                const newCurrentDir = findInTree(state.tree, state.currentDir.id);
+                if(newCurrentDir.file) {
+                    state.currentDir = newCurrentDir.file;
+                    state.currentPath = newCurrentDir.path;
                 }
             }
         },

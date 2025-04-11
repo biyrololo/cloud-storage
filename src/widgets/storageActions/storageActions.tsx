@@ -55,6 +55,16 @@ export function StorageActions(){
         for(const file of selectedFiles){
             await recursiveShare(file);
         }
+        for(const file of selectedFiles){
+            const fileMetadata = currentDir.children.find(child => child.id === file);
+            if(fileMetadata){
+                dispatch(fileActions.editInTree({
+                    ...fileMetadata,
+                    accessUsersRead: []
+                }));
+            }
+        }
+        dispatch(fileActions.updateCurrentDir());
     }
 
     const handleDelete = async () => {
@@ -64,6 +74,16 @@ export function StorageActions(){
         for(const file of selectedFiles){
             await deleteFileAction(file);
         }
+        for(const fileMetadataId of selectedFiles){
+            const fileMetadata = currentDir.children.find(child => child.id === fileMetadataId);
+            if(fileMetadata){
+                dispatch(fileActions.deleteFromTree({
+                    parentId: currentDir.id,
+                    id: fileMetadataId
+                }));
+            }
+        }
+        dispatch(fileActions.updateCurrentDir());
         console.log('deleted');
     }
 

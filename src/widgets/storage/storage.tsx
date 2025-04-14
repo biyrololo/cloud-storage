@@ -4,13 +4,15 @@ import { Header } from "../header";
 import { StorageSpeedDial } from "../storageSpeedDial";
 import { StorageDisplayV2 } from "../storageDisplayV2";
 import { StorageHeader } from "../storageHeader/storageHeader";
-
+import { StorageSpaceProps } from "../storageSpace/storageSpace";
+import { StorageSpace } from "../storageSpace/storageSpace";
 export interface StorageProps {
     content: Content[];
     headerProps: StorageHeaderProps;
+    spaceProps?: StorageSpaceProps;
 }
 
-export function Storage({content, headerProps}: StorageProps){
+export function Storage({content, headerProps, spaceProps}: StorageProps){
     return (
         <>
         <Header />
@@ -18,6 +20,11 @@ export function Storage({content, headerProps}: StorageProps){
         className="box-border mx-4 md:mx-20 my-3 grid gap-2"
         >
             <StorageSpeedDial />
+            {
+                spaceProps && (
+                    <StorageSpace {...spaceProps} />
+                )
+            }
             <StorageHeader {...headerProps} />
             <StorageDisplayV2 content={content} />
         </main>

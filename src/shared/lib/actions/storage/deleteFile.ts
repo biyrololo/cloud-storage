@@ -18,11 +18,6 @@ export async function deleteFile(content: Content){
     }
     if('s3Key' in content){
         await deleteFileFromS3(content);
-        await prisma.file.delete({
-            where: {
-                id: content.id
-            }
-        })
         return;
     }
     const user = await getMe();
@@ -38,6 +33,22 @@ async function deleteFileFromS3(file: FileModel){
     await prisma.file.delete({
         where: {
             id: file.id
+        }
+    })
+    const user = await prisma.user.findUnique({
+        where: {
+            id: file.ownerId
+        }
+    })
+    if(!user){
+        return false;
+    }
+    await prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            usedSpace: Math.max(user.usedSpace - file.size, 0)
         }
     })
     return true;

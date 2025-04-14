@@ -30,6 +30,10 @@ export default async function StorageV2Page({ params }: { params: Promise<{ path
             actionsProps: { allFiles: content },
             pathProps: { path: ['/', ...path] }
         }}
+        spaceProps={{
+            maxSize: user.maxSpace,
+            usedSpace: user.usedSpace
+        }}
         />
     )
 }

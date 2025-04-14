@@ -6,21 +6,27 @@ import s3Client from "@/shared/lib/s3/s3-config";
 import { PutObjectCommandInput, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { getPath } from "../../getPath";
+import { getSize } from "../../size/getSize";
 
 export async function uploadFile(uploadFile: File, path_: string){
     const path = path_.replace('%20', ' ');
     console.log(path);
-    if(uploadFile.size > 1024 * 1024 * 1000){
+    if(uploadFile.size > getSize('300MB')){
         return {
             error: "File size is too large"
         }
     }
     
-    
     const user = await getMe();
     if(!user){
         return {
             error: "User not found"
+        }
+    }
+
+    if(user.usedSpace + uploadFile.size > user.maxSpace){
+        return {
+            error: "You don't have enough space"
         }
     }
 
@@ -65,6 +71,14 @@ export async function uploadFile(uploadFile: File, path_: string){
             }
         })
 
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                usedSpace: user.usedSpace + uploadFile.size
+            }
+        })
         return {
             success: "File uploaded successfully",
             file: file
@@ -137,6 +151,26 @@ export async function uploadFile(uploadFile: File, path_: string){
         }
     })
 
+    const owner = await prisma.user.findUnique({
+        where: {
+            id: folder.ownerId
+        }
+    })
+    
+    if(!owner){
+        return {
+            error: "Owner not found"
+        }
+    }
+
+    await prisma.user.update({
+        where: {
+            id: owner.id
+        },
+        data: {
+            usedSpace: owner.usedSpace + uploadFile.size
+        }
+    })
     return {
         success: "File uploaded successfully",
         file: file

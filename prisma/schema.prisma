@@ -20,6 +20,8 @@ model User {
   password  String
   files     File[]
   folders   Folder[]
+  maxSpace  Int @default(500000000) // 500 MB in Bytes
+  usedSpace Int @default(0)
 }
 
 model File {

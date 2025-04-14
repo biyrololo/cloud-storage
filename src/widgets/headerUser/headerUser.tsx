@@ -29,7 +29,7 @@ export function HeaderUser() {
     };
 
     const handleOpenStorage = () => {
-        router.push('/storageV2')
+        router.push('/storage')
         handleClose();
     }
 

@@ -2,52 +2,40 @@
 
 import { FileUploader } from "react-drag-drop-files";
 import { useState } from "react";
-import { uploadFile } from "@/entities/file";
-import { useTypedSelector } from "@/shared/lib/store";
-import { fileActions } from "@/entities/file/model/slice";
-import { useTypedDispatch } from "@/shared/lib/store";
+import { uploadFile } from "@/shared/lib/actions/storage/uploadFile";
+import { useParams, useRouter } from "next/navigation";
+import { getPath } from "@/shared/lib/getPath";
 
 export function FileUpload({onClose}: {onClose: () => void}){
+    const router = useRouter();
+    const { path } : { path: string[] } = useParams();
     const [pending, setPending] = useState(false);
-    const currentDir = useTypedSelector(state => state.file.currentDir);
-    const dispatch = useTypedDispatch();
     const handleChange = async (files: File[]) => {
-        if(!currentDir){
-            return;
-        }
+        setPending(true);
         for(const file of files){
-            try {
-                setPending(true);
-                const response = await uploadFile({
-                    file,
-                    parentId: currentDir.id
-                });
-                console.log(response);
-
-                if('error' in response){
-                    console.error(response.error);
-                } else {
-                    dispatch(fileActions.addInTree({
-                        ...response,
-                        children: []
-                    }));
-                    dispatch(fileActions.updateCurrentDir());
-                    onClose();
-                }
-                } catch (error) {
-                console.error(error);
-            } finally {
-                setPending(false);
-            }
+            const response = await uploadFile(
+                file,
+                getPath(path)
+            );
+            console.log(response); 
         }
+        setPending(false);
+        onClose();
+        router.refresh();
     }
 
     return (
         <FileUploader
             handleChange={handleChange}
             name="file"
+            label="Upload or drop files"
             disabled={pending} 
             multiple
-        />
+            classes="!overflow-hidden !block !w-full"
+        >
+            <p className="rounded-md cursor-pointer border border-[var(--primary-color)] p-3 text-primary md:min-w-[300px]">
+                Upload or drop files
+            </p>
+        </FileUploader>
     )
 }

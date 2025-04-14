@@ -1,7 +1,7 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+const EXPIRES_IN = process.env.JWT_EXPIRES_IN || "10d";
 
 export type JwtPayload = {
     id: number;
@@ -21,9 +21,6 @@ class JwtService {
 
     verifyToken(token: string): JwtPayload | null {
         try {
-            if(!JWT_SECRET) {
-                throw new Error("JWT_SECRET is not defined");
-            }
             return jwt.verify(token, JWT_SECRET as jwt.Secret) as JwtPayload;
         } catch (error) {
             console.error("Error verifying token:", error);

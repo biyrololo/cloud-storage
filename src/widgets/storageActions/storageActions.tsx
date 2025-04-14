@@ -1,93 +1,74 @@
-import { useTypedSelector, useTypedDispatch } from "@/shared/lib/store";
-import { Box, FormControlLabel, Checkbox, Tooltip, IconButton } from "@mui/material";
-import { fileActions } from "@/entities/file";
+"use client"
+
+import { Box, FormControlLabel, Checkbox, Tooltip, IconButton, styled } from "@mui/material";
 import { Download } from "@mui/icons-material";
-import { downloadFiles, makeAccessToFilePublic, deleteFileAction } from "@/entities/file";
 import ShareIcon from '@mui/icons-material/Share';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Content } from "@/entities/file/model/content";
+import { useTypedSelector, useTypedDispatch } from "@/shared/lib/store";
+import { fileActions } from "@/entities/file/model/slice";
+import { downloadFiles } from "@/shared/lib/actions/storage/downloadFile";
+import { useEffect } from "react";
+import { deleteFile } from "@/shared/lib/actions/storage/deleteFile";
+import { makeFoldersPublic } from "@/shared/lib/actions/storage/changeAccess";
+import { Folder } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
-export function StorageActions(){
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+    color: theme.palette.primary.main,
+}));
+
+export interface StorageActionsProps {
+    allFiles: Content[]
+}
+
+export function StorageActions({allFiles}: StorageActionsProps){
     const selectedFiles = useTypedSelector(state => state.file.selectedFiles);
-    const currentDir = useTypedSelector(state => state.file.currentDir);
-    const currentFiles = currentDir?.children.map(file => file.id) || [];
     const dispatch = useTypedDispatch();
-
-    const handleChange = () => {
-        if(selectedFiles.length === currentDir?.children.length){
-            dispatch(fileActions.clearSelectedFiles());
-            return;
-        }
-        dispatch(fileActions.setSelectedFiles(currentFiles));
-    }
-
+    const router = useRouter();
     const handleDownload = async () => {
-        if(selectedFiles.length === 0 || !currentDir){
+        if(!selectedFiles.length){
             return;
         }
-        const trees = currentDir.children.filter(file => selectedFiles.includes(file.id));
-        const zipBuffer = await downloadFiles(trees) as Buffer;
-        const url = window.URL.createObjectURL(new Blob([zipBuffer], {type: 'application/zip'}));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'files.zip';
-        link.click();
-        window.URL.revokeObjectURL(url);
-    }
-
-    const recursiveShare = async (fileId: string) => {
-        const metadata = await makeAccessToFilePublic(fileId, 'read');
-        if('error' in metadata){
-            console.error(metadata.error);
-            return;
-        }
-        if(metadata.type === 'file'){
-            return;
-        }
-        for(const child of metadata.children){
-            await recursiveShare(child);
-        }
-    }
-    const handleShare = async () => {
-        if(selectedFiles.length === 0 || !currentDir){
-            return;
-        }
-
-        for(const file of selectedFiles){
-            await recursiveShare(file);
-        }
-        for(const file of selectedFiles){
-            const fileMetadata = currentDir.children.find(child => child.id === file);
-            if(fileMetadata){
-                dispatch(fileActions.editInTree({
-                    ...fileMetadata,
-                    accessUsersRead: []
-                }));
-            }
-        }
-        dispatch(fileActions.updateCurrentDir());
+        const data = await downloadFiles(selectedFiles as Content[]);
+        const zipBuffer = data as Buffer;
+        const url = URL.createObjectURL(new Blob([zipBuffer], {type: 'application/zip'}));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedFiles[0].name}.zip`;
+        a.click();
     }
 
     const handleDelete = async () => {
-        if(selectedFiles.length === 0 || !currentDir){
+        if(!selectedFiles.length){
             return;
         }
         for(const file of selectedFiles){
-            await deleteFileAction(file);
+            await deleteFile(file as Content);
         }
-        for(const fileMetadataId of selectedFiles){
-            const fileMetadata = currentDir.children.find(child => child.id === fileMetadataId);
-            if(fileMetadata){
-                dispatch(fileActions.deleteFromTree({
-                    parentId: currentDir.id,
-                    id: fileMetadataId
-                }));
-            }
-        }
-        dispatch(fileActions.updateCurrentDir());
-        console.log('deleted');
+        router.refresh();
     }
 
-    const isActionsDisabled = selectedFiles.length === 0 || !currentDir;
+    const handleShare = async () => {
+        const folders = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];
+        if(!folders.length){
+            return;
+        }
+        await makeFoldersPublic(folders, 'read');
+        router.refresh();
+    }
+
+    const handleChangeSelectedFiles = ()=>{
+        if(selectedFiles.length === allFiles.length){
+            dispatch(fileActions.clearSelectedFiles());
+        } else {
+            dispatch(fileActions.setSelectedFiles(allFiles));
+        }
+    }
+
+    useEffect(() => {
+        dispatch(fileActions.clearSelectedFiles());
+    }, [allFiles]);
 
     return (
         <Box display="flex" alignItems="center" gap={1}>
@@ -95,26 +76,26 @@ export function StorageActions(){
                 control={
                     <Checkbox
                         checked={selectedFiles.length > 0}
-                        indeterminate={selectedFiles.length > 0 && selectedFiles.length < currentFiles.length}
-                        onChange={handleChange}
+                        indeterminate={selectedFiles.length > 0 && selectedFiles.length < allFiles.length}
+                        onChange={handleChangeSelectedFiles}
                     />
                 }
-                label={`Selected ${selectedFiles.length} of ${currentFiles.length}`}
+                label={<><span className="hidden sm:inline">Selected</span> {selectedFiles.length} of {allFiles.length}</>}
             />
             <Tooltip title="Download">
-                <IconButton onClick={handleDownload} disabled={isActionsDisabled}>
+                <StyledIconButton onClick={handleDownload} >
                     <Download />
-                </IconButton>
+                </StyledIconButton>
             </Tooltip>
             <Tooltip title="Make public">
-                <IconButton onClick={handleShare} disabled={isActionsDisabled}>
+                <StyledIconButton onClick={handleShare} >
                     <ShareIcon />
-                </IconButton>
+                </StyledIconButton>
             </Tooltip>
             <Tooltip title="Delete">
-                <IconButton onClick={handleDelete} disabled={isActionsDisabled}>
+                <StyledIconButton onClick={handleDelete} >
                     <DeleteIcon />
-                </IconButton>
+                </StyledIconButton>
             </Tooltip>
         </Box>
     )

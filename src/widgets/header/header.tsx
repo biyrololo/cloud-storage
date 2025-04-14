@@ -1,64 +1,35 @@
 "use client";
 
-import { AppBar, Avatar, Box, Button, Container, Toolbar, Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Link from "next/link";
 import { useTypedSelector } from "@/shared/lib/store/store";
-import { ReduxProvider } from "@/shared/lib/store/provider";
-const pages = ['Products', 'Pricing', 'Blog'];
+import ChangeHistoryIcon from '@mui/icons-material/ChangeHistory';
+import { HeaderUser } from "../headerUser/headerUser";
 
-function HeaderComponent(){
+export function Header(){
     const user = useTypedSelector(state => state.user.user);
 
     return (
-        <AppBar position="static">
-            <Container maxWidth="xl">
-                <Toolbar disableGutters
-                    sx={{
-                        justifyContent: 'space-between',
-                    }}
-                >
-                    <Box className="flex gap-4">
-                        {
-                            pages.map((page) => (
-                                <Button
-                                    key={page}
-                                    color="inherit"
-                                >
-                                    <Link href={`/${page.toLowerCase()}`}>
-                                            {page}
-                                    </Link>
-                                </Button>
-                            ))
-                        }
-                    </Box>
-                    {
-                        user ? (
-                            <Box className="flex gap-2 items-center">
-                                <Avatar>
-                                    {user.name[0]}
-                                </Avatar>
-                                <Typography variant="h6" fontWeight={600}>
-                                    {user.name}
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <Button color="inherit">
-                                <Link href="/login">
-                                    Login
-                                </Link>
-                            </Button>
-                        )
-                    }
-                </Toolbar>
-            </Container>
-        </AppBar>
-    )
-}
-
-export function Header(){
-    return (
-        <ReduxProvider>
-            <HeaderComponent />
-        </ReduxProvider>
+        <header className="flex justify-between items-center px-10 py-6">
+            <div className="flex items-center gap-2">
+                <ChangeHistoryIcon />
+                <Link href="/">
+                    <Typography variant="h6">
+                        BN Storage
+                    </Typography>
+                </Link>
+            </div>
+            {
+                user ? (
+                    <HeaderUser />
+                ) : (
+                    <Link href="/auth/register">
+                        <Button variant="contained" sx={{textTransform: 'none', borderRadius: '30px'}}>
+                            Get Started
+                        </Button>
+                    </Link>
+                )
+            }
+        </header>
     )
 }

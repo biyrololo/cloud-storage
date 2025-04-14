@@ -1,112 +1,70 @@
 "use client"
 
-import { useForm } from "react-hook-form";
-import { Grid2, TextField, Button, Typography } from "@mui/material";
-import { loginAction } from "@/entities/user";
-import { ReduxProvider } from "@/shared/lib/store/provider";
+import { login } from "@/shared/lib/actions/auth/login";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { useActionState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTypedDispatch } from "@/shared/lib/store/store";
 import { userActions } from "@/entities/user";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useEffect } from "react";
 
-type LoginFormSchema = {
-    email: string;
-    password: string;
-};
-
-function LoginForm() {
+export function LoginForm() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const dispatch = useTypedDispatch();
-    const {
-        register,
-        handleSubmit,
-        setError,
-        formState: { errors, isSubmitting },
-    } = useForm<LoginFormSchema>({
-    })
+    const [state, formAction, isPending] = useActionState(login, {
+        error: {},
+        values: {
+            email: '',
+            password: '',
+        },
+    });
 
-    const onSubmit = async (data: LoginFormSchema) => {
-        try{
-            const result = await loginAction(data.email, data.password)
-            if(result.success){
-                console.log('Пользователь зарегистрирован', result.user)
-                dispatch(userActions.login(result.user))
-                const redirect = searchParams.get('redirect');
-                if(redirect){
-                    router.push(redirect)
-                } else {
-                    router.push('/')
-                }
-            } else {
-                if(result.errors)
-                    Object.entries(result.errors).forEach(([field, message]) => {
-                        setError(field as keyof LoginFormSchema, {
-                            type: 'manual',
-                            message,
-                        });
-                    });
-            }
-        } catch(e){
-            console.log(e)
+    useEffect(() => {
+        if(state.success) {
+            dispatch(userActions.login(state.user));
+            router.push('/storage');
         }
-    }
+    }, [state.success]);
 
     return (
-        <Grid2 container component="form" onSubmit={handleSubmit(onSubmit)}
-        className='w-fit max-w-[400px]'
-        >
-            <Typography component="h1" variant="h5" className='text-center w-full'>
-                Вход
-            </Typography>
-            <TextField
-                {...register("email")}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email"
-                name="email"
-                autoComplete="email"
-                autoFocus
-            />
-            <TextField
-                {...register("password")}
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Пароль"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-            />
-            <Typography variant="body2" className="text-center w-full">
-                Еще нет аккаунта? <Link href="/register" className="underline text-blue-500">
-                    Зарегистрироваться
-                </Link>
-            </Typography>
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                disabled={isSubmitting}
+        <Box display={'flex'} justifyContent={'center'} alignItems={'center'} height={'100vh'}>
+            <form action={formAction}
+                className="grid gap-7 p-4 sm:min-w-[400px]"
             >
-                Войти
-            </Button>
-        </Grid2>
-    )
-}
-
-export function LoginFormWrapper() {
-    return (
-        <ReduxProvider>
-            <LoginForm />
-        </ReduxProvider>
+                <Typography variant="h5" textAlign={'center'} sx={{fontSize: {
+                    xs: '1.3rem',
+                    sm: '2rem',
+                }}}>Welcome Back!</Typography>
+                <div className="grid gap-4">
+                    <TextField 
+                        label="Email"
+                        name="email"
+                        defaultValue={state.values?.email || ''}
+                        error={!!state.error?.email}
+                        helperText={state.error?.email}
+                        type="email"
+                        autoComplete="off"
+                        required
+                        variant='standard'
+                    />
+                    <TextField 
+                        label="Password"
+                        name="password"
+                        defaultValue={state.values?.password || ''}
+                        error={!!state.error?.password}
+                        helperText={state.error?.password}
+                        type="password"
+                        autoComplete="off"
+                        required
+                        variant='standard'
+                    />
+                    <Link href="/auth/register">
+                        <Typography variant="body2" textAlign={'center'}>Don&apos;t have an account? <span className="text-primary">Register</span></Typography> 
+                    </Link>
+                </div>
+                <Button loading={isPending} variant="contained" type="submit">Login</Button>
+            </form>
+        </Box>
     )
 }

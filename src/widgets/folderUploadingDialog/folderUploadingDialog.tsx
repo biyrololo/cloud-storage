@@ -1,8 +1,9 @@
-import { Dialog, DialogTitle, DialogContent, TextField, Button, Typography } from "@mui/material";
-import { createFolder } from "@/entities/file";
-import { useTypedDispatch, useTypedSelector } from "@/shared/lib/store";
-import { useState } from "react";
-import { fileActions } from "@/entities/file/model/slice";
+import { Dialog, DialogTitle, DialogContent, TextField, Button } from "@mui/material";
+import { useActionState } from "react";
+import { createFolder } from "@/shared/lib/actions/storage/createFolder";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { getPath } from "@/shared/lib/getPath";
 
 export interface FolderUploadingDialogProps {
     open: boolean;
@@ -10,57 +11,44 @@ export interface FolderUploadingDialogProps {
 }
 
 export function FolderUploadingDialog({open, onClose}: FolderUploadingDialogProps){
-    const currentDir = useTypedSelector(state => state.file.currentDir);
-    const tree = useTypedSelector(state => state.file.tree);
-    const dispatch = useTypedDispatch();
-    const [error, setError] = useState('');
-    
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>){
-        event.preventDefault();
-        if(!tree || !currentDir){
-            setError('Tree is not loaded');
-            return;
+    const router = useRouter();
+    const { path } : { path: string[] } = useParams();
+    const createFolderWithPath = createFolder.bind(null, getPath(path));
+    // @ts-expect-error - NEXT SHOULD FIX THIS
+    const [state, formAction, isPending] = useActionState(createFolderWithPath, {
+        error: {},
+        values: {
+            folderName: '',
+        },
+    });
+
+    useEffect(() => {
+        if(state.success){
+            onClose();
+            router.refresh();
         }
+    }, [state.success]);
 
-        const formData = new FormData(event.currentTarget);
-        const name = formData.get('folderName');
-
-        if(!name){
-            setError('Name is required');
-            return;
-        }
-
-        const folder = await createFolder({
-            name: name as string,
-            parentId: currentDir.id,
-        });
-
-        dispatch(fileActions.addInTree({
-            ...folder,
-            children: []
-        }));
-        dispatch(fileActions.updateCurrentDir());
-        onClose();
-    }
-    
     return (
         <>
             <Dialog open={open} onClose={onClose}>
-                <DialogTitle>Upload Folder</DialogTitle>
+                <DialogTitle>Create folder</DialogTitle>
                 <DialogContent>
-                    <form onSubmit={handleSubmit}>
+                    <form
+                    action={formAction}
+                    className="grid gap-7 md:min-w-[300px]"
+                    >
                         <TextField
                             label="Folder Name"
                             name="folderName"
                             required
                             fullWidth
+                            autoComplete="off"
+                            variant="standard"
+                            error={!!state.error?.folderName}
+                            helperText={state.error?.folderName}
                         />
-                        {
-                            error && (
-                                <Typography color="error">{error}</Typography>
-                            )
-                        }
-                        <Button type="submit">Upload</Button>
+                        <Button loading={isPending} variant="contained" type="submit">Upload</Button>
                     </form>
                 </DialogContent>
             </Dialog>

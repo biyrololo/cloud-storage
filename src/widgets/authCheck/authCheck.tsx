@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import { findMe } from "@/entities/user";
+import { getMe } from "@/shared/lib/actions/auth/getMe";
 import { useTypedDispatch } from "@/shared/lib/store/store";
 import { userActions } from "@/entities/user";
-import { ReduxProvider } from "@/shared/lib/store/provider";
 
-function AuthCheckComponent(){
+export function AuthCheck(){
     const dispatch = useTypedDispatch();
     
     useEffect(() => {
         const checkAuth = async () => {
-            const user = await findMe();
-            console.log(user);
+            const user = await getMe();
             if(user){
                 dispatch(userActions.login(user));
             }
@@ -21,12 +19,4 @@ function AuthCheckComponent(){
     }, []);
 
     return null;
-}
-
-export function AuthCheck(){
-    return (
-        <ReduxProvider>
-            <AuthCheckComponent />
-        </ReduxProvider>
-    )
 }

@@ -24,7 +24,7 @@ export async function uploadFile(uploadFile: File, path_: string){
         }
     }
 
-    if(user.usedSpace + uploadFile.size > user.maxSpace){
+    if(BigInt(user.usedSpace) + BigInt(uploadFile.size) > user.maxSpace){
         return {
             error: "You don't have enough space"
         }
@@ -76,7 +76,7 @@ export async function uploadFile(uploadFile: File, path_: string){
                 id: user.id
             },
             data: {
-                usedSpace: user.usedSpace + uploadFile.size
+                usedSpace: BigInt(user.usedSpace) + BigInt(uploadFile.size)
             }
         })
         return {
@@ -168,7 +168,7 @@ export async function uploadFile(uploadFile: File, path_: string){
             id: owner.id
         },
         data: {
-            usedSpace: owner.usedSpace + uploadFile.size
+            usedSpace: BigInt(owner.usedSpace) + BigInt(uploadFile.size)
         }
     })
     return {

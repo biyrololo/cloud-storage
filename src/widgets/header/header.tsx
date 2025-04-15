@@ -19,6 +19,11 @@ export function Header(){
                     </Typography>
                 </Link>
             </div>
+            <Link href={'/pricing'}>
+                <Typography variant="body1" color="text.secondary">
+                    Pricing
+                </Typography>
+            </Link>
             {
                 user ? (
                     <HeaderUser />

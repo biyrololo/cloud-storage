@@ -28,8 +28,9 @@ export function PricingOption({name, price, description, features, selected, var
                 sx={{
                     borderRadius: 100,
                 }}
+                href={`mailto:${process.env.CONTACT_EMAIL}`}
                 >
-                    {selected ? 'Selected' : 'Get Started'}
+                    {selected ? 'Selected' : 'Contact Us'}
                 </Button>
                 <div className="flex flex-col gap-2">
                     {features.map((feature) => (

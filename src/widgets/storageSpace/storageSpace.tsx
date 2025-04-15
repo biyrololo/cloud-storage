@@ -3,8 +3,8 @@ import { formatSize } from "@/shared/lib/size/getSize";
 import Link from "next/link";
 
 export interface StorageSpaceProps {
-    maxSize: number;
-    usedSpace: number;
+    maxSize: bigint;
+    usedSpace: bigint;
 }
 
 export function StorageSpace({maxSize, usedSpace}: StorageSpaceProps){
@@ -21,9 +21,9 @@ export function StorageSpace({maxSize, usedSpace}: StorageSpaceProps){
                 </Link>
             </div>
             <Slider
-                value={usedSpace}
+                value={Number(usedSpace)}
                 min={0}
-                max={maxSize}
+                max={Number(maxSize)}
                 step={1}
                 valueLabelDisplay="on"
                 sx={{

@@ -3,7 +3,7 @@
 import { Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography, Tooltip, IconButton } from "@mui/material";
 import { File as FileModel, Folder, Folder as FolderModel } from "@prisma/client"
 import { UserFileIcon } from "@/shared/ui/userFileIcon";
-import { formatSize } from "@/shared/lib/formatSize";
+import { formatSize } from "@/shared/lib/size/getSize";
 import { calculatePath } from "@/shared/lib/calculatePath";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -47,7 +47,7 @@ export function StorageElement({ item }: StorageElementProps) {
             secondaryAction={
                 'size' in item ? (
                     <Typography variant="body2">
-                        {formatSize(item.size)}
+                        {formatSize(Number(item.size))}
                     </Typography>
                 ) : item.readAccess.includes('all') && (
                     <Tooltip title="Copy link">

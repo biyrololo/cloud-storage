@@ -1,9 +1,8 @@
 import { getSize } from "@/shared/lib/size/getSize";
 import { PricingOption } from "../pricingOption";
-import { getMe } from "@/shared/lib/actions/auth/getMe";
+import { User } from "@prisma/client";
 
-export async function Pricing(){
-    const user = await getMe();
+export async function Pricing({user}: {user: User | null}){
     let userPlan = 'none';
 
     if(user){
@@ -27,7 +26,7 @@ export async function Pricing(){
             />
             <PricingOption
                 name="Team"
-                price={5}
+                price={3}
                 description="For small teams"
                 features={['5GB of storage']}
                 selected={userPlan === 'team'}
@@ -35,7 +34,7 @@ export async function Pricing(){
             />
             <PricingOption
                 name="Enterprise"
-                price={15}
+                price={10}
                 description="For large teams"
                 features={['50GB of storage']}
                 selected={userPlan === 'enterprise'}

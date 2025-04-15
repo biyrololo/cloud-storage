@@ -13,10 +13,10 @@ export function getSize(size: Size): number {
     return value * Math.pow(1000, index);
 }
 
-export function formatSize(size: number): Size {
+export function formatSize(size: number | bigint): Size {
     const len = size.toString().length;
     const index = Math.floor((len - 1) / 3);
-    const value = Math.round(size / Math.pow(1000, index));
+    const value = Math.round(Number(size) / Math.pow(1000, index));
     if(index >= units.length) {
         return `${value}${units[units.length - 1]}`;
     }

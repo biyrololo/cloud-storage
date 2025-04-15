@@ -20,14 +20,14 @@ model User {
   password  String
   files     File[]
   folders   Folder[]
-  maxSpace  Int @default(500000000) // 500 MB in Bytes
-  usedSpace Int @default(0)
+  maxSpace  BigInt @default(500000000) // 500 MB in Bytes
+  usedSpace BigInt @default(0)
 }
 
 model File {
   id        Int      @id @default(autoincrement())
   name      String
-  size      Int      @default(0)
+  size      BigInt      @default(0)
   path      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,4 +48,13 @@ model Folder {
   ownerId   Int
   readAccess String[] // users emails
   writeAccess String[] // users emails
+}
+
+model PromoCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  maxSpace  BigInt
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  usageCount Int @default(0)
 }

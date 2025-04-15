@@ -48,7 +48,7 @@ async function deleteFileFromS3(file: FileModel){
             id: user.id
         },
         data: {
-            usedSpace: Math.max(user.usedSpace - file.size, 0)
+            usedSpace: BigInt(Math.max(Number(user.usedSpace) - Number(file.size), 0))
         }
     })
     return true;

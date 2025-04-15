@@ -10,16 +10,37 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: '/images/logo.png',
+    apple: '/images/logo.png',
+    shortcut: '/images/logo.png',
+  },
   title: "BN Storage",
   description: "BN Storage is a cloud storage service that allows you to store and share files with your friends and family.",
   authors: [{ name: "biyrololo", url: "https://github.com/biyrololo" }],
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://desktop.bn-storage.ru",
+    url: "https://bn-storage.ru",
     title: "BN Storage",
     description: "BN Storage is a cloud storage service that allows you to store and share files with your friends and family.",
-    siteName: "BN Storage"
+    siteName: "BN Storage",
+    images: [
+      {
+        url: "https://bn-storage.ru/storage.png",
+        width: 1200,
+        height: 630,
+        alt: "BN Storage"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BN Storage",
+    description: "BN Storage is a cloud storage service that allows you to store and share files with your friends and family.",
+    images: ["https://bn-storage.ru/storage.png"],
+    site: "https://bn-storage.ru",
+    creator: "@biyrololo"
   }
 };
 

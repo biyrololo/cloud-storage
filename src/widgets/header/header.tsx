@@ -3,8 +3,8 @@
 import { Button, Typography } from "@mui/material";
 import Link from "next/link";
 import { useTypedSelector } from "@/shared/lib/store/store";
-import ChangeHistoryIcon from '@mui/icons-material/ChangeHistory';
 import { HeaderUser } from "../headerUser/headerUser";
+import Image from "next/image";
 
 export function Header(){
     const user = useTypedSelector(state => state.user.user);
@@ -13,7 +13,7 @@ export function Header(){
         <>
             <header className="flex justify-between items-center px-10 py-6">
                 <div className="flex items-center gap-2">
-                    <ChangeHistoryIcon />
+                    <Image src={'/logo.png'} alt="BN Storage" width={24} height={24} />
                     <Link href="/">
                         <Typography variant="h6">
                             BN Storage

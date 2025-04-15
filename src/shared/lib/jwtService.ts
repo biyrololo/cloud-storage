@@ -22,8 +22,8 @@ class JwtService {
     verifyToken(token: string): JwtPayload | null {
         try {
             return jwt.verify(token, JWT_SECRET as jwt.Secret) as JwtPayload;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            console.error("Error verifying token:", error);
             return null
         }
     }

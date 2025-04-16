@@ -5,6 +5,7 @@ import { useState } from "react";
 import { uploadFile } from "@/shared/lib/actions/storage/uploadFile";
 import { useParams, useRouter } from "next/navigation";
 import { getPath } from "@/shared/lib/getPath";
+import { CircularProgress } from "@mui/material";
 
 export function FileUpload({onClose}: {onClose: () => void}){
     const router = useRouter();
@@ -33,8 +34,19 @@ export function FileUpload({onClose}: {onClose: () => void}){
             multiple
             classes="!overflow-hidden !block !w-full"
         >
-            <p className="rounded-md cursor-pointer border border-[var(--primary-color)] p-3 text-primary md:min-w-[300px]">
-                Upload or drop files
+            <p className={`rounded-md cursor-pointer border border-[var(--primary-color)] p-3 text-primary md:min-w-[300px] flex items-center opacity-${pending ? 50 : 100}`}>
+                {
+                    pending ? (
+                        <>
+                            <CircularProgress size={20} />
+                            <span className="ml-2">Uploading...</span>
+                        </>
+                    ) : (
+                        <>
+                            Upload or drop files
+                        </>
+                    )
+                }
             </p>
         </FileUploader>
     )

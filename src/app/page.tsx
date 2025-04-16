@@ -14,7 +14,7 @@ export default async function Home() {
           <br /> Anywhere, Anytime
         </h1>
         <p className="text-center text-gray-500">
-          Upload, download, and share files.
+          Upload, download and share files.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Link href="/auth/register">

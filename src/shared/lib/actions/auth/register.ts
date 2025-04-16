@@ -74,5 +74,6 @@ export async function register(_: unknown, formData: FormData) {
             name: user.name,
             email: user.email,
         },
+        values: rawValues
     }
 }

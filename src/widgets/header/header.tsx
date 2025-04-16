@@ -37,7 +37,7 @@ export function Header(){
                     )
                 }
             </header>
-            <nav className="sm:hidden flex justify-between items-center gap-4 box-border px-10">
+            <nav className="sm:hidden flex justify-center items-center gap-4 box-border px-10">
                 <Link href={'/pricing'}>
                     <Typography variant="body1" color="text.secondary">
                         Pricing

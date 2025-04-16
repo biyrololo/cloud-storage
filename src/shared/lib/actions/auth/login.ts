@@ -71,5 +71,6 @@ export async function login(_: unknown, formData: FormData) {
             name: user.name,
             email: user.email,
         },
+        values: rawValues
     }
 }

@@ -26,7 +26,6 @@ export const fileSlice = createSlice({
             if(state.selectedFiles.find(file => file.id === dto.id)){
                 state.selectedFiles = state.selectedFiles.filter(file => file.id !== dto.id);
             } else {
-                console.log(dto);
                 state.selectedFiles.push(dto);
             }
         },

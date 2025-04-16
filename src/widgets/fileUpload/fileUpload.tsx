@@ -14,11 +14,10 @@ export function FileUpload({onClose}: {onClose: () => void}){
     const handleChange = async (files: File[]) => {
         setPending(true);
         for(const file of files){
-            const response = await uploadFile(
+            await uploadFile(
                 file,
                 getPath(path)
             );
-            console.log(response); 
         }
         setPending(false);
         onClose();

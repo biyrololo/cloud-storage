@@ -1,3 +1,5 @@
+export const revalidate = 0;
+
 import { getContent } from "@/shared/lib/actions/getContent";
 import { redirect } from "next/navigation";
 import { getPath } from "@/shared/lib/getPath";
@@ -24,7 +26,7 @@ export default async function StorageV2Page({ params }: { params: Promise<{ path
         content={content}
         headerProps={{
             actionsProps: { allFiles: content },
-            pathProps: { path }
+            pathProps: { path, userId }
         }}/>
     )
 }

@@ -1,3 +1,5 @@
+export const revalidate = 0;
+
 import { getContent } from "@/shared/lib/actions/getContent";
 import { redirect } from "next/navigation";
 import { getMe } from "@/shared/lib/actions/auth/getMe";

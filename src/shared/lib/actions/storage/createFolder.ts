@@ -6,7 +6,6 @@ import { prisma } from "@/shared/lib/prisma";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createFolder(path_: string, _: any,  formData: any){
     const path = path_.replace('%20', ' ');
-    console.log(path);
     const folderName = formData.get('folderName') as string;
     const rawValues = { folderName };
 
@@ -66,7 +65,6 @@ export async function createFolder(path_: string, _: any,  formData: any){
 
     const parentPath = path.split('/').slice(0, -1).join('/');
     const parentName = path.split('/').pop();
-    console.table({parentPath, parentName});
 
     if(!parentName){
         const folder = await prisma.folder.create({

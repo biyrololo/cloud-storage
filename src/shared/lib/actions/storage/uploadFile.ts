@@ -10,7 +10,6 @@ import { getSize } from "../../size/getSize";
 
 export async function uploadFile(uploadFile: File, path_: string){
     const path = path_.replace('%20', ' ');
-    console.log(path);
     if(uploadFile.size > getSize('300MB')){
         return {
             error: "File size is too large"

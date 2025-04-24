@@ -5,66 +5,56 @@ import { getMe } from "../auth/getMe";
 import { prisma } from "../../prisma";
 import { getPath } from "@/shared/lib/getPath";
 
-export async function makeFoldersPublic(folders: Folder[], access: 'read' | 'write'){
+export async function changeFoldersAccess(folders: Folder[], access: 'private' | 'public', accessType: 'read' | 'write'){
     const user = await getMe();
     if(!user){
         return {error: 'User not found'};
     }
     for(const folder of folders){
-        await makeFolderPublic(folder, access, user);
+        await changeFolderAccess(folder, access, accessType, user);
     }
     return {success: true};
 }
 
-async function makeFolderPublic(folder: Folder, access: 'read' | 'write', user: User){
+async function changeFolderAccess(folder: Folder, access: 'private' | 'public', accessType: 'read' | 'write', user: User){
     if(!folder.writeAccess.includes('all') && !folder.writeAccess.includes(user.email)){
         return;
     }
-    if(access === 'read'){
-        await prisma.folder.update({
-            where: {id: folder.id},
-            data: {readAccess: ['all', user.email]}
-        })
-        await prisma.file.updateMany({
-            where: {
-                path: {
-                    startsWith: getPath(folder.path, folder.name)
-                },
-                ownerId: folder.ownerId
-            },
-            data: {readAccess: ['all', user.email]}
-        })
-        await prisma.folder.updateMany({
-            where: {
-                path: {
-                    startsWith: getPath(folder.path, folder.name)
-                },
-                ownerId: folder.ownerId
-            },
-            data: {readAccess: ['all', user.email]}
-        })
-    } else {
-        await prisma.folder.update({
-            where: {id: folder.id},
-            data: {writeAccess: ['all', user.email]}
-        })
-        await prisma.file.updateMany({
-            where: {
-                path: {
-                    startsWith: getPath(folder.path, folder.name)
-                },
-                ownerId: folder.ownerId
-            },
-            data: {writeAccess: ['all', user.email]}
-        })
-        await prisma.folder.updateMany({
-            where: {
-                path: {
-                    startsWith: getPath(folder.path, folder.name)
-                },
-                ownerId: folder.ownerId
-            },
-            data: {writeAccess: ['all', user.email]}
-        })
+    let newReadAccess: string[] = folder.readAccess;
+    let newWriteAccess: string[] = folder.writeAccess;
+    if(accessType === 'read'){
+        if(access === 'private'){
+            newReadAccess = newReadAccess.filter(email => email !== 'all');
+        } else {
+            newReadAccess.push('all');
+        }
+    }  else {
+        if(access === 'private'){
+            newWriteAccess = newWriteAccess.filter(email => email !== 'all');
+        } else {
+            newWriteAccess.push('all');
+        }
     }
+    await prisma.folder.update({
+        where: {id: folder.id},
+        data: {readAccess: newReadAccess, writeAccess: newWriteAccess}
+    })
+    await prisma.file.updateMany({
+        where: {
+            path: {
+                startsWith: getPath(folder.path, folder.name)
+            },
+            ownerId: folder.ownerId
+        },
+        data: {readAccess: newReadAccess, writeAccess: newWriteAccess}
+    })
+    await prisma.folder.updateMany({
+        where: {
+            path: {
+                startsWith: getPath(folder.path, folder.name)
+            },
+            ownerId: folder.ownerId
+        },
+        data: {readAccess: newReadAccess, writeAccess: newWriteAccess}
+    })
 }

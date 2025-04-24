@@ -2,13 +2,13 @@ import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 import { FileUpload } from "../fileUpload/fileUpload";
 import { DialogProps } from "@/shared/lib/dialog/dialogProps";
 
-export function FileUploadDialog({ open, onClose }: DialogProps){
+export function FolderUploadDialog({ open, onClose }: DialogProps){
     return (
         <>
             <Dialog open={open} onClose={onClose}>
-                <DialogTitle>Upload File</DialogTitle>
+                <DialogTitle>Upload Folders</DialogTitle>
                 <DialogContent>
-                    <FileUpload onClose={onClose} />
+                    <FileUpload onClose={onClose} folder/>
                 </DialogContent>
             </Dialog>
         </>

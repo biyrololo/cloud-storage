@@ -11,6 +11,7 @@ import { fileActions } from "@/entities/file/model/slice";
 import { useTypedSelector, useTypedDispatch } from "@/shared/lib/store";
 import LinkIcon from '@mui/icons-material/Link';
 import { getPath } from "@/shared/lib/getPath";
+import { contentDTO } from "@/entities/file/model/dto";
 
 export type StorageElementProps = {
     item: FileModel | FolderModel;
@@ -27,7 +28,7 @@ export function StorageElement({ item }: StorageElementProps) {
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         switch(e.detail){
             case 1:
-                dispatch(fileActions.selectFile(item));
+                dispatch(fileActions.selectFile(contentDTO(item)));
                 break;
             case 2:
                 if(isFolder){

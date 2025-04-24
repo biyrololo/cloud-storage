@@ -12,7 +12,9 @@ export function AuthCheck(){
         const checkAuth = async () => {
             const user = await getMe();
             if(user){
-                dispatch(userActions.login(user));
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { password, usedSpace, maxSpace, ...rest } = user;
+                dispatch(userActions.login(rest));
             }
         }
         checkAuth();

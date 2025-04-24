@@ -13,7 +13,7 @@ import { getPath } from '@/shared/lib/getPath';
 type AddDataFunc = (file: Buffer, path: string) => void;
 
 export async function downloadFiles(contents: Content[]){
-    const data: {file: Buffer<ArrayBufferLike>, path: string}[] = [];
+    const data: {file: Buffer, path: string}[] = [];
     const addFile: AddDataFunc = (file, path) => {
         data.push({file, path});
     }
@@ -95,7 +95,6 @@ async function downloadFolder(folder: FolderModel, user: User | null, addFile: A
         }
     })
 
-
     for(const file of allFiles){
         const fileData = await downloadFileFromS3(file);
         if(!fileData){
@@ -109,6 +108,4 @@ async function downloadFolder(folder: FolderModel, user: User | null, addFile: A
         const buffer = Buffer.concat(chunks);
         addFile(buffer, getPath(file.path, file.name));
     }
-
-
 }

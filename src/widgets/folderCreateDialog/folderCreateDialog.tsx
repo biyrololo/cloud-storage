@@ -4,13 +4,9 @@ import { createFolder } from "@/shared/lib/actions/storage/createFolder";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { getPath } from "@/shared/lib/getPath";
+import { DialogProps } from "@/shared/lib/dialog/dialogProps";
 
-export interface FolderUploadingDialogProps {
-    open: boolean;
-    onClose: () => void;
-}
-
-export function FolderUploadingDialog({open, onClose}: FolderUploadingDialogProps){
+export function FolderCreateDialog({open, onClose}: DialogProps){
     const router = useRouter();
     const { path } : { path: string[] } = useParams();
     const createFolderWithPath = createFolder.bind(null, getPath(path));

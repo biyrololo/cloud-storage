@@ -1,8 +1,10 @@
 import { User } from "@prisma/client";
 import { createSlice } from "@reduxjs/toolkit";
 
+type SerializedUser = Omit<User, 'password' | 'maxSpace' | 'usedSpace'>;
+
 interface UserState {
-    user: Omit<User, 'password'> | null;
+    user: SerializedUser | null;
     isAuth: boolean;
 }
 

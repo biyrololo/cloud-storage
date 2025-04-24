@@ -4,7 +4,7 @@ import { getMe } from "../auth/getMe";
 import { prisma } from "@/shared/lib/prisma";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function createFolder(path_: string, _: any,  formData: any){
+export async function createFolder(path_: string, _: any,  formData: FormData){
     const path = path_.replace('%20', ' ');
     const folderName = formData.get('folderName') as string;
     const rawValues = { folderName };

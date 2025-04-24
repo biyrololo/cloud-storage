@@ -5,8 +5,10 @@ import { FileUploadDialog } from "../fileUploadDialog";
 import AddIcon from '@mui/icons-material/Add';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useState } from "react";
-import { FolderUploadingDialog } from "../folderUploadingDialog";
+import { FolderCreateDialog } from "../folderCreateDialog";
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
+import { FolderUploadDialog } from "../folderUploadDialog/folderUploadDialog";
 
 export function StorageSpeedDial(){
     const [open, setOpen] = useState('');
@@ -38,6 +40,17 @@ export function StorageSpeedDial(){
                     onClick={() => setOpen('upload')}
                 />
                 <SpeedDialAction
+                    icon={<DriveFolderUploadIcon />}
+                    slotProps={
+                        {
+                            tooltip: {
+                                title: "Upload Folder"
+                            }
+                        }
+                    }
+                    onClick={() => setOpen('upload_folder')}
+                />
+                <SpeedDialAction
                     icon={<CreateNewFolderIcon />}
                     slotProps={
                         {
@@ -50,7 +63,8 @@ export function StorageSpeedDial(){
                 />
             </SpeedDial>
             <FileUploadDialog open={open==='upload'} onClose={handleClose} />
-            <FolderUploadingDialog open={open==='folder'} onClose={handleClose} />
+            <FolderUploadDialog open={open==='upload_folder'} onClose={handleClose} />
+            <FolderCreateDialog open={open==='folder'} onClose={handleClose} />
         </>
     )
 }

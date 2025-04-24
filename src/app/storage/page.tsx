@@ -23,7 +23,7 @@ export default async function StorageV2Page() {
         content={content}
         headerProps={{
             actionsProps: { allFiles: content },
-            pathProps: { path: ['/'] }
+            pathProps: { path: ['/'] },
         }}
         spaceProps={{
             maxSize: user.maxSpace,

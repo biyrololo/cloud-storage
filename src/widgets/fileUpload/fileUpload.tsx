@@ -69,7 +69,7 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
                             </>
                         ) : (
                             <>
-                                Upload or drop files
+                                Upload or drop {folder ? 'folders' : 'files'}
                             </>
                         )
                     }

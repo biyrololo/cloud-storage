@@ -60,7 +60,7 @@ export function StorageElement({ item }: StorageElementProps) {
             }
         >
             <ListItemButton
-                selected={selectedFiles.some(file => file.id === item.id)}
+                selected={selectedFiles.some(file => file.id === item.id && file.name === item.name)}
                 onClick={handleClick}
                 dense
             >

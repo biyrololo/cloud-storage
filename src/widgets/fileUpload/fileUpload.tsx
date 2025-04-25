@@ -20,7 +20,6 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
     useEffect(() => {
         if(fileUploadRef.current && folder){
             const input = fileUploadRef.current.querySelector('input[type="file"]');
-            console.log(input);
             if(input){
                 input.setAttribute('webkitdirectory', '');
                 input.setAttribute('directory', '');
@@ -29,24 +28,21 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
     }, [])
 
     const handleChange = async (files: FileList) => {
-        console.log('files', files);
         setPending(true);
         setLoadedFiles(0);
         setTotalFiles(files.length);
         for(const file of files){
             if(folder){
-                const response = await uploadFileRecursive(
+                await uploadFileRecursive(
                     file,
                     getPath(path),
                     file.webkitRelativePath
                 )
-                console.log('res', response);
             } else {
-                const response = await uploadFile(
+                await uploadFile(
                     file,
                     getPath(path)
                 );
-                console.log('res', response);
             }
             setLoadedFiles(prev => prev + 1);
         }

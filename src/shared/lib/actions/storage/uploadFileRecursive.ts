@@ -10,7 +10,6 @@ import { getSize } from "../../size/getSize";
 
 export async function uploadFileRecursive(uploadFile: File, path_: string, relativePath_: string){
     const relativePath = relativePath_.replace('%20', ' ').split('/').slice(0,-1).join('/');
-    console.log('relativePath', relativePath);
     const path = path_.replace('%20', ' ');
     if(uploadFile.size > getSize('1000MB')){
         return {
@@ -42,9 +41,7 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
                     ownerId: user.id
                 }
             })
-    
-            console.log('candidate', candidate);
-    
+        
             if(!candidate){
                 await prisma.folder.create({
                     data: {
@@ -58,8 +55,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
                     }
                 })
             }
-    
-            console.log('folder created', candidate);
         }
 
         const candidate = await prisma.file.findFirst({
@@ -90,8 +85,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
         const command = new PutObjectCommand(params);
         await s3Client.send(command);
     
-        console.log('path: ', relativePath);
-    
         const file = await prisma.file.create({
             data: {
                 name: uploadFile.name,
@@ -105,8 +98,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
                 writeAccess: [user.email],
             }
         })
-    
-        console.log('file created', file);
     
         await prisma.user.update({
             where: {
@@ -157,8 +148,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
             }
         })
 
-        console.log('candidate', candidate);
-
         if(!candidate){
             await prisma.folder.create({
                 data: {
@@ -172,8 +161,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
                 }
             })
         }
-
-        console.log('folder created', candidate);
     }
 
     const candidate = await prisma.file.findFirst({
@@ -204,8 +191,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
     const command = new PutObjectCommand(params);
     await s3Client.send(command);
 
-    console.log('path: ', [path, relativePath].join('/'));
-
     const file = await prisma.file.create({
         data: {
             name: uploadFile.name,
@@ -219,8 +204,6 @@ export async function uploadFileRecursive(uploadFile: File, path_: string, relat
             writeAccess: folder.writeAccess,
         }
     })
-
-    console.log('file created', file);
 
     const owner = await prisma.user.findUnique({
         where: {

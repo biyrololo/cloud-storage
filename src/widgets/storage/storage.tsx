@@ -2,7 +2,7 @@ import { StorageHeaderProps } from "../storageHeader/storageHeader";
 import { Content } from "@/entities/file/model";
 import { Header } from "../header";
 import { StorageSpeedDial } from "../storageSpeedDial";
-import { StorageDisplayV2 } from "../storageDisplay";
+import { StorageDisplay } from "../storageDisplay";
 import { StorageHeader } from "../storageHeader/storageHeader";
 import { StorageSpaceProps } from "../storageSpace/storageSpace";
 import { StorageSpace } from "../storageSpace/storageSpace";
@@ -29,7 +29,7 @@ export function Storage({content, headerProps, spaceProps, hasWriteAccess=true}:
                 )
             }
             <StorageHeader {...headerProps} hasWriteAccess={hasWriteAccess}/>
-            <StorageDisplayV2 content={content} />
+            <StorageDisplay content={content} />
         </main>
     </>
     )

@@ -1,4 +1,4 @@
-import { Slider, Typography } from "@mui/material";
+import { LinearProgress, Typography } from "@mui/material";
 import { formatSize } from "@/shared/lib/size/getSize";
 import Link from "next/link";
 
@@ -20,16 +20,12 @@ export function StorageSpace({maxSize, usedSpace}: StorageSpaceProps){
                     </Typography>
                 </Link>
             </div>
-            <Slider
-                value={Number(usedSpace)}
-                min={0}
-                max={Number(maxSize)}
-                step={1}
-                valueLabelDisplay="on"
+            <LinearProgress
+                variant="determinate"
+                value={Number(usedSpace) / Number(maxSize) * 100}
                 sx={{
-                    '& .MuiSlider-thumb': {
-                        display: 'none'
-                    }
+                    my: 2,
+                    borderRadius: 100
                 }}
             />
         </div>

@@ -6,7 +6,7 @@ import { uploadFile } from "@/shared/lib/actions/storage/uploadFile";
 import { uploadFileRecursive } from "@/shared/lib/actions/storage/uploadFileRecursive";
 import { useParams, useRouter } from "next/navigation";
 import { getPath } from "@/shared/lib/getPath";
-import { CircularProgress } from "@mui/material";
+import { LinearProgress } from "@mui/material";
 
 export function FileUpload({onClose, folder=false}: {onClose: () => void, folder?: boolean}){
     const fileUploadRef = useRef<HTMLDivElement>(null);
@@ -14,6 +14,8 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
     const router = useRouter();
     const { path } : { path: string[] } = useParams();
     const [pending, setPending] = useState(false);
+    const [loadedFiles, setLoadedFiles] = useState<number>(0);
+    const [totalFiles, setTotalFiles] = useState<number>(0);
 
     useEffect(() => {
         if(fileUploadRef.current && folder){
@@ -29,6 +31,8 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
     const handleChange = async (files: FileList) => {
         console.log('files', files);
         setPending(true);
+        setLoadedFiles(0);
+        setTotalFiles(files.length);
         for(const file of files){
             if(folder){
                 const response = await uploadFileRecursive(
@@ -44,6 +48,7 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
                 );
                 console.log('res', response);
             }
+            setLoadedFiles(prev => prev + 1);
         }
         setPending(false);
         onClose();
@@ -64,8 +69,9 @@ export function FileUpload({onClose, folder=false}: {onClose: () => void, folder
                     {
                         pending ? (
                             <>
-                                <CircularProgress size={20} />
-                                <span className="ml-2">Uploading...</span>
+                                <div className="grid w-full">
+                                    <LinearProgress variant="buffer" value={(loadedFiles / totalFiles) * 100} valueBuffer={(loadedFiles + 1) / totalFiles * 100} />
+                                </div>
                             </>
                         ) : (
                             <>

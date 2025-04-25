@@ -91,24 +91,24 @@ export function StorageActions({allFiles, hasWriteAccess=true}: StorageActionsPr
     }
 
     const handleShare = async () => {
-        setPending(PENDING.SHARE);
         const selectedFiles_ = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];;
         const folders = allFiles.filter(f => selectedFiles_.some(t => t.id === f.id));
         if(!folders.length){
             return;
         }
+        setPending(PENDING.SHARE);
         await changeFoldersAccess(folders, 'public', 'read');
         setPending(PENDING.NONE);
         router.refresh();
     }
 
     const handleUnshare = async () => {
-        setPending(PENDING.UNSHARE);
         const selectedFiles_ = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];;
         const folders = allFiles.filter(f => selectedFiles_.some(t => t.id === f.id));
         if(!folders.length){
             return;
         }
+        setPending(PENDING.UNSHARE);
         await changeFoldersAccess(folders, 'private', 'read');
         setPending(PENDING.NONE);
         router.refresh();
@@ -139,27 +139,35 @@ export function StorageActions({allFiles, hasWriteAccess=true}: StorageActionsPr
                 label={<><span className="hidden sm:inline">Selected</span> {selectedFiles.length} of {allFiles.length}</>}
             />
             <Tooltip title="Download">
-                <StyledIconButton onClick={handleDownload} loading={pending === PENDING.DOWNLOAD} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.DOWNLOAD)}>
-                    <Download />
-                </StyledIconButton>
+                <span>
+                    <StyledIconButton onClick={handleDownload} loading={pending === PENDING.DOWNLOAD} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.DOWNLOAD)}>
+                        <Download />
+                    </StyledIconButton>
+                </span>
             </Tooltip>
             {
                 hasWriteAccess && (
                     <>
                         <Tooltip title="Make public">
-                            <StyledIconButton onClick={handleShare} loading={pending === PENDING.SHARE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.SHARE)}>
-                                <ShareIcon />
-                            </StyledIconButton>
+                            <span>
+                                <StyledIconButton onClick={handleShare} loading={pending === PENDING.SHARE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.SHARE)}>
+                                    <ShareIcon />
+                                </StyledIconButton>
+                            </span>
                         </Tooltip>
                         <Tooltip title="Make private">
-                            <StyledIconButton onClick={handleUnshare} loading={pending === PENDING.UNSHARE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.UNSHARE)}>
-                                <DoDisturbIcon />
-                            </StyledIconButton>
+                            <span>
+                                <StyledIconButton onClick={handleUnshare} loading={pending === PENDING.UNSHARE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.UNSHARE)}>
+                                    <DoDisturbIcon />
+                                </StyledIconButton>
+                            </span>
                         </Tooltip>
                         <Tooltip title="Delete">
-                            <StyledIconButton onClick={handleDelete} loading={pending === PENDING.DELETE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.DELETE)}>
-                                <DeleteIcon />
-                            </StyledIconButton>
+                            <span>
+                                <StyledIconButton onClick={handleDelete} loading={pending === PENDING.DELETE} disabled={!selectedFiles.length || (pending !== PENDING.NONE && pending !== PENDING.DELETE)}>
+                                    <DeleteIcon />
+                                </StyledIconButton>
+                            </span>
                         </Tooltip>
                     </>
                 )

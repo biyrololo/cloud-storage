@@ -2,11 +2,11 @@ import { List, Typography } from "@mui/material"
 import { StorageElement } from "../storageElement"
 import { Content } from "@/entities/file/model";
 
-export type StorageDisplayV2Props = {
+export type StorageDisplayProps = {
     content: Content[];
 }
 
-export function StorageDisplayV2({ content }: StorageDisplayV2Props) {
+export function StorageDisplay({ content }: StorageDisplayProps) {
 
     if(content.length === 0){
         return (

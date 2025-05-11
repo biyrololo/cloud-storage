@@ -6,15 +6,14 @@ import s3Client from "@/shared/lib/s3/s3-config";
 import { getMimeType } from "@/shared/lib/mimeType";
 
 interface Params {
-    id: string
+    uuid: string
 }
 
-export async function GET(request: Request, 
+export async function GET(_: Request, 
     { params }: { params: Promise<Params> }
 ){
-    const { id } = await params;
-    const fileId = Number(id);
-    if(isNaN(fileId)) {
+    const { uuid } = await params;
+    if(!uuid) {
         return NextResponse.json(
             { error: 'File not found' },
             { status: 400 }
@@ -23,7 +22,7 @@ export async function GET(request: Request,
 
     const file = await prisma.file.findUnique({
         where: {
-            id: fileId
+            uuid
         }
     })
 

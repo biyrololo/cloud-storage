@@ -34,7 +34,7 @@ export function StorageElement({ item }: StorageElementProps) {
                 if(isFolder){
                     router.push(calculatePath(`${item.path}/${item.name}`, userId));
                 } else {
-                    router.push(`/file/${item.id}`);
+                    router.push(`/files/${(item as FileModel).uuid}`);
                 }
                 break;
         }

@@ -16,6 +16,7 @@ import { contentDTO } from "@/entities/file/model/dto";
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import { downloadSingleFile } from "@/shared/lib/actions/storage/downloadSingleFile";
 import { changeFoldersAccess } from "@/shared/lib/actions/storage/changeAccess";
+import { changeFilesAccess } from "@/shared/lib/actions/storage/changeAccessFiles";
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.primary.main,
@@ -90,26 +91,36 @@ export function StorageActions({allFiles, hasWriteAccess=true}: StorageActionsPr
         router.refresh();
     }
 
-    const handleShare = async () => {
-        const selectedFiles_ = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];;
-        const folders = allFiles.filter(f => selectedFiles_.some(t => t.id === f.id));
+    const handleFoldersChange = async (access: 'private' | 'public') => {
+        const selectedFolders_ = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];
+        const folders = allFiles.filter(f => selectedFolders_.some(t => t.id === f.id));
         if(!folders.length){
             return;
         }
+        await changeFoldersAccess(folders, access, 'read');
+    }
+
+    const handleFilesShare = async (access: 'private' | 'public') => {
+        const selectedFiles_ = selectedFiles.filter(file => ('s3Key' in file)) as FileModel[];
+        const files = allFiles.filter(f => selectedFiles_.some(t => t.id === f.id)) as FileModel[];
+        if(!files.length){
+            return;
+        }
+        await changeFilesAccess(files, access, 'read');
+    }
+
+    const handleShare = async () => {
         setPending(PENDING.SHARE);
-        await changeFoldersAccess(folders, 'public', 'read');
+        await handleFoldersChange('public');
+        await handleFilesShare('public');
         setPending(PENDING.NONE);
         router.refresh();
     }
 
     const handleUnshare = async () => {
-        const selectedFiles_ = selectedFiles.filter(file => !('s3Key' in file)) as Folder[];;
-        const folders = allFiles.filter(f => selectedFiles_.some(t => t.id === f.id));
-        if(!folders.length){
-            return;
-        }
         setPending(PENDING.UNSHARE);
-        await changeFoldersAccess(folders, 'private', 'read');
+        await handleFoldersChange('private');
+        await handleFilesShare('private');
         setPending(PENDING.NONE);
         router.refresh();
     }

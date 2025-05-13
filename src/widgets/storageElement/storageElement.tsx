@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography, Tooltip, IconButton } from "@mui/material";
+import { Avatar, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography, Tooltip, IconButton, Box } from "@mui/material";
 import { File as FileModel, Folder, Folder as FolderModel } from "@prisma/client"
 import { UserFileIcon } from "@/shared/ui/userFileIcon";
 import { formatSize } from "@/shared/lib/size/getSize";
@@ -41,7 +41,10 @@ export function StorageElement({ item }: StorageElementProps) {
     }
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(window.location.origin + calculatePath(getPath(item.path, item.name), (item as Folder).ownerId.toString()));
+        let url;
+        if('size' in item) url = window.location.origin + '/files/' + (item as FileModel).uuid;
+        else url = window.location.origin + calculatePath(getPath(item.path, item.name), (item as Folder).ownerId.toString());
+        navigator.clipboard.writeText(url);
     }
 
     return (
@@ -49,9 +52,20 @@ export function StorageElement({ item }: StorageElementProps) {
             disablePadding
             secondaryAction={
                 'size' in item ? (
-                    <Typography variant="body2">
-                        {formatSize(Number(item.size))}
-                    </Typography>
+                    <Box display={'flex'} gap={1} alignItems={'center'}>
+                        {
+                            item.readAccess.includes('all') && (
+                                <Tooltip title="Copy link">
+                                    <IconButton onClick={handleCopyLink}>
+                                        <LinkIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            )
+                        }
+                        <Typography variant="body2">
+                            {formatSize(Number(item.size))}
+                        </Typography>
+                    </Box>
                 ) : item.readAccess.includes('all') && (
                     <Tooltip title="Copy link">
                         <IconButton onClick={handleCopyLink}>

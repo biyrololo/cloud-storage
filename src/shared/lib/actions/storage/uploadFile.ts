@@ -1,15 +1,16 @@
 "use server";
 
+import { PutObjectCommand, PutObjectCommandInput } from "@aws-sdk/client-s3";
+
 import { getMe } from "../auth/getMe";
-import { prisma } from "@/shared/lib/prisma";
-import s3Client from "@/shared/lib/s3/s3-config";
-import { PutObjectCommandInput, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuidv4 } from "uuid";
 import { getPath } from "../../getPath";
 import { getSize } from "../../size/getSize";
+import { prisma } from "@/shared/lib/prisma";
+import s3Client from "@/shared/lib/s3/s3-config";
+import { v4 as uuidv4 } from "uuid";
 
 export async function uploadFile(uploadFile: File, path_: string){
-    const path = path_.replace('%20', ' ');
+    const path = decodeURIComponent(path_);
     if(uploadFile.size > getSize('1000MB')){
         return {
             error: "File size is too large"

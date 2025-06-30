@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
 import "./globals.css";
+
 import { AuthCheck } from "@/widgets/authCheck/authCheck";
+import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import { Providers } from "./providers";
+
 const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",

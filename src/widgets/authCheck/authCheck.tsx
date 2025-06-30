@@ -1,24 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { getMe } from "@/shared/lib/actions/auth/getMe";
+import { useSession } from "next-auth/react";
 import { useTypedDispatch } from "@/shared/lib/store/store";
 import { userActions } from "@/entities/user";
 
 export function AuthCheck(){
     const dispatch = useTypedDispatch();
+    const session = useSession();
     
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        const checkAuth = async () => {
-            const user = await getMe();
-            if(user){
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { password, usedSpace, maxSpace, ...rest } = user;
-                dispatch(userActions.login(rest));
-            }
+        if(session.status !== 'authenticated') return;
+        const user = session.data?.user;
+        if(user){
+            dispatch(userActions.login(user));
         }
-        checkAuth();
-    }, []);
+    }, [session.status]);
 
     return null;
 }

@@ -1,11 +1,11 @@
 "use server";
 
-import { getTokenPayload } from "../auth/getTokenPayload";
-import { prisma } from "../prisma";
+import { getMe } from "./auth/getMe";
 import { getPath } from "../getPath";
+import { prisma } from "../prisma";
 
 export async function getFolder(path: string, ownerId: number) {
-    const tokenPayload = await getTokenPayload();
+    const user = await getMe();
     const findOptions = [
         {
             readAccess: {
@@ -14,10 +14,10 @@ export async function getFolder(path: string, ownerId: number) {
         }
     ]
 
-    if(tokenPayload) {
+    if(user) {
         findOptions.push({
             readAccess: {
-                has: tokenPayload.email
+                has: user.email
             }
         })
     }

@@ -1,10 +1,10 @@
 export const revalidate = 0;
 
-import { getContent } from "@/shared/lib/actions/getContent";
-import { redirect } from "next/navigation";
-import { getMe } from "@/shared/lib/actions/auth/getMe";
-import { Storage } from "@/widgets/storage";
 import { Metadata } from "next";
+import { Storage } from "@/widgets/storage";
+import { getContent } from "@/shared/lib/actions/getContent";
+import { getMe } from "@/shared/lib/actions/auth/getMe";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
     title: 'BN Storage - User Storage',

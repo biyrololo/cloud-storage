@@ -1,10 +1,11 @@
 "use client";
 
 import { Button, Typography } from "@mui/material";
-import Link from "next/link";
-import { useTypedSelector } from "@/shared/lib/store/store";
+
 import { HeaderUser } from "../headerUser/headerUser";
 import Image from "next/image";
+import Link from "next/link";
+import { useTypedSelector } from "@/shared/lib/store/store";
 
 export function Header(){
     const user = useTypedSelector(state => state.user.user);
@@ -25,11 +26,16 @@ export function Header(){
                         Pricing
                     </Typography>
                 </Link>
+                <Link href={'/news'} className="hidden sm:block">
+                    <Typography variant="body1" color="text.secondary">
+                        News
+                    </Typography>
+                </Link>
                 {
                     user ? (
                         <HeaderUser />
                     ) : (
-                        <Link href="/auth/register">
+                        <Link href="/auth">
                             <Button variant="contained" sx={{textTransform: 'none', borderRadius: '30px'}}>
                                 Get Started
                             </Button>

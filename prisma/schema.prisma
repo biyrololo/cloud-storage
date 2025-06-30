@@ -20,6 +20,7 @@ model User {
   password  String
   files     File[]
   folders   Folder[]
+  image     String   @default("")
   maxSpace  BigInt @default(500000000) // 500 MB in Bytes
   usedSpace BigInt @default(0)
 }

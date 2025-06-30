@@ -1,17 +1,19 @@
 "use client"
 
-import { login } from "@/shared/lib/actions/auth/login";
-import { Box, TextField, Button, Typography } from "@mui/material";
-import { useActionState } from "react";
+import { Box, Button, TextField, Typography } from "@mui/material";
+
 import Link from "next/link";
+import { login } from "@/shared/lib/actions/auth/login";
+import { useActionState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTypedDispatch } from "@/shared/lib/store/store";
 import { userActions } from "@/entities/user";
-import { useEffect } from "react";
 
 export function LoginForm() {
     const router = useRouter();
     const dispatch = useTypedDispatch();
+    
     const [state, formAction, isPending] = useActionState(login, {
         error: {},
         values: {

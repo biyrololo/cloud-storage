@@ -1,4 +1,5 @@
 import { Button, Card, CardContent, Typography } from "@mui/material";
+
 import CheckCircleSharpIcon from '@mui/icons-material/CheckCircleSharp';
 
 export interface PricingOptionProps {
@@ -28,9 +29,9 @@ export function PricingOption({name, price, description, features, selected, var
                 sx={{
                     borderRadius: 100,
                 }}
-                href={`mailto:${process.env.CONTACT_EMAIL}`}
+                // href={`mailto:${process.env.CONTACT_EMAIL}`}
                 >
-                    {selected ? 'Selected' : 'Contact Us'}
+                    {selected ? 'Selected' : 'Soon'}
                 </Button>
                 <div className="flex flex-col gap-2">
                     {features.map((feature) => (

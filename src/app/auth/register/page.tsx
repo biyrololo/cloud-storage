@@ -1,7 +1,5 @@
-import { getMe } from "@/shared/lib/actions/auth/getMe";
-import { RegisterForm } from "@/widgets/registerForm";
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { RegisterForm } from "@/widgets/registerForm";
 
 export const metadata: Metadata = {
     title: "BN Storage - Register",
@@ -9,11 +7,6 @@ export const metadata: Metadata = {
 }
 
 export default async function RegisterPage() {
-    const me = await getMe();
-
-    if(me){
-        return redirect('/storage');
-    }
     return (
         <main>
             <RegisterForm />

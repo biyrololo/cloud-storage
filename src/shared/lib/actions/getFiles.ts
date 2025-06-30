@@ -1,11 +1,11 @@
 "use server";
 
-import { getTokenPayload } from "../auth/getTokenPayload";
-import { prisma } from "../prisma";
+import { getMe } from "./auth/getMe";
 import { getPath } from "../getPath";
+import { prisma } from "../prisma";
 
 export async function getFiles(path: string) {
-    const tokenPayload = await getTokenPayload();
+    const user = await getMe();
     
     const files = await prisma.file.findMany({
         where: {
@@ -13,7 +13,7 @@ export async function getFiles(path: string) {
             OR: [
                 {
                     readAccess: {
-                        has: tokenPayload?.email
+                        has: user?.email
                     }
                 },
                 {

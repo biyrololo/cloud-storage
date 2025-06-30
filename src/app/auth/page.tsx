@@ -1,15 +1,15 @@
-import { LoginForm } from "@/widgets/loginForm/loginForm";
+import { AuthForm } from "@/widgets/authForm/authForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "BN Storage - Login",
+    title: "BN Storage - Sign In",
     description: "Login to BN Storage",
 }
 
 export default async function LoginPage() {
     return (
         <main>
-            <LoginForm />
+            <AuthForm />            
         </main>
     )
 }

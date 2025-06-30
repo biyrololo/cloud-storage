@@ -5,8 +5,8 @@ import { prisma } from "@/shared/lib/prisma";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createFolder(path_: string, _: any,  formData: FormData){
-    const path = path_.replace('%20', ' ');
-    const folderName = formData.get('folderName') as string;
+    const path = decodeURIComponent(path_);
+    const folderName = (formData.get('folderName') as string).trim();
     const rawValues = { folderName };
 
     if(!folderName){
@@ -18,7 +18,7 @@ export async function createFolder(path_: string, _: any,  formData: FormData){
         }
     }
 
-    if(folderName.length > 255){
+    if(folderName.length > 50){
         return {
             error: {
                 folderName: "Folder name is too long"

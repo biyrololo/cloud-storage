@@ -1,4 +1,5 @@
 import { Breadcrumbs, Typography } from "@mui/material";
+
 import Link from "next/link";
 import { calculatePath } from "@/shared/lib/calculatePath";
 
@@ -20,7 +21,7 @@ export function Path({ path, userId }: PathProps) {
                         color: i === path.length - 1 ? 'text.primary' : ''
                     }}
                     >
-                        {p.replace('/', 'Root')}
+                        {decodeURIComponent(p.replace('/', 'Root'))}
                     </Typography>
                 </Link>
             ))}

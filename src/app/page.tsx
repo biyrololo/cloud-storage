@@ -1,8 +1,11 @@
+import { Button, Card, CardContent, CardMedia, Typography } from "@mui/material";
+
 import { Header } from "@/widgets/header";
 import Link from "next/link";
-import { Typography, Button, Card, CardContent, CardMedia } from "@mui/material";
+import { getServerSession } from "next-auth";
 
 export default async function Home() {
+  const session = await getServerSession();
   return (
     <>
       <Header />
@@ -16,34 +19,54 @@ export default async function Home() {
         <p className="text-center text-gray-500">
           Upload, download and share files.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <Link href="/auth/register">
-            <Button variant="contained" size="large" color="primary"
-            fullWidth
-            sx={{
-              textTransform: 'none',
-              px: 4,
-              py: 1.5,
-              borderRadius: 20
-            }}
-            >
-              Get Started
-            </Button>
-          </Link>
-          <Link href="/auth/login">
-            <Button variant="outlined" size="large" color="secondary"
-            fullWidth
-            sx={{
-              textTransform: 'none',
-              px: 4,
-              py: 1.5,
-              borderRadius: 20
-            }}
-            >
-              Login
-            </Button>
-          </Link>
-        </div>
+          {
+            session?.user ? (
+              <div>
+                <Link href="/storage">
+                  <Button variant="contained" size="large" color="primary"
+                  fullWidth
+                  sx={{
+                    textTransform: 'none',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 20
+                  }}
+                  >
+                    Go to Storage
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Link href="/auth">
+                  <Button variant="contained" size="large" color="primary"
+                  fullWidth
+                  sx={{
+                    textTransform: 'none',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 20
+                  }}
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+                <Link href="/auth">
+                  <Button variant="outlined" size="large" color="secondary"
+                  fullWidth
+                  sx={{
+                    textTransform: 'none',
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 20
+                  }}
+                  >
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            )
+          }
       </section>
       <section className="p-10">
         <Card sx={{borderRadius: 10, p: 2, display: 'grid', 

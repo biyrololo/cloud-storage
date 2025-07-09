@@ -51,7 +51,7 @@ export function Header(){
                 </Link>
                 <Link href={'/news'}>
                     <Typography variant="body1" color="text.secondary">
-                        Pricing
+                        News
                     </Typography>
                 </Link>
             </nav>

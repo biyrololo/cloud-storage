@@ -49,6 +49,11 @@ export function Header(){
                         Pricing
                     </Typography>
                 </Link>
+                <Link href={'/news'}>
+                    <Typography variant="body1" color="text.secondary">
+                        Pricing
+                    </Typography>
+                </Link>
             </nav>
         </>
     )

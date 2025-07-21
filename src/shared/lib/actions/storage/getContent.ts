@@ -1,9 +1,9 @@
 "use server";
 
 import { Content } from "@/entities/file/model";
-import { getMe } from "./auth/getMe";
-import { getPath } from "../getPath";
-import { prisma } from "../prisma";
+import { getMe } from "@/shared/lib/actions/auth/getMe";
+import { getPath } from "@/shared/lib/getPath";
+import { prisma } from "@/shared/lib/prisma";
 
 export async function getContent(path: string, ownerId: number) {
     const user = await getMe();

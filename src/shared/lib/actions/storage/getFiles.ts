@@ -1,8 +1,8 @@
 "use server";
 
-import { getMe } from "./auth/getMe";
-import { getPath } from "../getPath";
-import { prisma } from "../prisma";
+import { getMe } from "../auth/getMe";
+import { getPath } from "../../getPath";
+import { prisma } from "../../prisma";
 
 export async function getFiles(path: string) {
     const user = await getMe();

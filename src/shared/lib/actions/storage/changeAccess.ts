@@ -1,11 +1,13 @@
 "use server";
 
+import { Access, AccessType } from "@/shared/types/access";
 import { Folder, User } from "@prisma/client";
-import { getMe } from "../auth/getMe";
-import { prisma } from "../../prisma";
-import { getPath } from "@/shared/lib/getPath";
 
-export async function changeFoldersAccess(folders: Folder[], access: 'private' | 'public', accessType: 'read' | 'write'){
+import { getMe } from "../auth/getMe";
+import { getPath } from "@/shared/lib/getPath";
+import { prisma } from "../../prisma";
+
+export async function changeFoldersAccess(folders: Folder[], access: Access, accessType: AccessType){
     const user = await getMe();
     if(!user){
         return {error: 'User not found'};
@@ -16,7 +18,7 @@ export async function changeFoldersAccess(folders: Folder[], access: 'private' |
     return {success: true};
 }
 
-async function changeFolderAccess(folder: Folder, access: 'private' | 'public', accessType: 'read' | 'write', user: User){
+async function changeFolderAccess(folder: Folder, access: Access, accessType: AccessType, user: User){
     if(!folder.writeAccess.includes('all') && !folder.writeAccess.includes(user.email)){
         return;
     }

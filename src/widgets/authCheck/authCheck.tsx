@@ -9,7 +9,6 @@ export function AuthCheck(){
     const dispatch = useTypedDispatch();
     const session = useSession();
     
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if(session.status !== 'authenticated') return;
         const user = session.data?.user;

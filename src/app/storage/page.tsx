@@ -2,7 +2,7 @@ export const revalidate = 0;
 
 import { Metadata } from "next";
 import { Storage } from "@/widgets/storage";
-import { getContent } from "@/shared/lib/actions/getContent";
+import { getContent } from "@/shared/lib/actions/storage/getContent";
 import { getMe } from "@/shared/lib/actions/auth/getMe";
 import { redirect } from "next/navigation";
 

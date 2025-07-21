@@ -1,6 +1,7 @@
-import { Dialog, DialogTitle, DialogContent } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle } from "@mui/material";
+
+import { DialogProps } from "@/shared/ui/dialog/dialogProps";
 import { FileUpload } from "../fileUpload/fileUpload";
-import { DialogProps } from "@/shared/lib/dialog/dialogProps";
 
 export function FileUploadDialog({ open, onClose }: DialogProps){
     return (

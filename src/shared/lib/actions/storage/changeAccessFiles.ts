@@ -1,10 +1,12 @@
 "use server";
 
+import { Access, AccessType } from "@/shared/types/access";
 import { File as FileModel, User } from "@prisma/client";
+
 import { getMe } from "../auth/getMe";
 import { prisma } from "../../prisma";
 
-export async function changeFilesAccess(files: FileModel[], access: 'private' | 'public', accessType: 'read' | 'write'){
+export async function changeFilesAccess(files: FileModel[], access: Access, accessType: AccessType){
     const user = await getMe();
     if(!user){
         return {error: 'User not found'};
@@ -15,7 +17,7 @@ export async function changeFilesAccess(files: FileModel[], access: 'private' | 
     return {success: true};
 }
 
-async function changeFileAccess(file: FileModel, access: 'private' | 'public', accessType: 'read' | 'write', user: User){
+async function changeFileAccess(file: FileModel, access: Access, accessType: AccessType, user: User){
     if(!file.writeAccess.includes('all') && !file.writeAccess.includes(user.email)){
         return;
     }

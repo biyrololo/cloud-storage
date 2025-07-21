@@ -13,9 +13,13 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   icons: {
-    icon: '/images/logo.png',
-    apple: '/images/logo.png',
-    shortcut: '/images/logo.png',
+    icon: '/images/favicon.ico',
+    apple: '/images/apple-touch-icon.png',
+    shortcut: '/images/favicon.ico',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/images/apple-touch-icon-precomposed.png'
+    }
   },
   title: "BN Storage",
   description: "BN Storage is a cloud storage service that allows you to store and share files with your friends and family.",

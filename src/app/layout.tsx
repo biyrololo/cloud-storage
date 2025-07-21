@@ -15,11 +15,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/images/favicon.ico',
     apple: '/images/apple-touch-icon.png',
-    shortcut: '/images/favicon.ico',
-    other: {
-      rel: 'apple-touch-icon-precomposed',
-      url: '/images/apple-touch-icon-precomposed.png'
-    }
+    shortcut: '/images/favicon.ico'
   },
   title: "BN Storage",
   description: "BN Storage is a cloud storage service that allows you to store and share files with your friends and family.",
